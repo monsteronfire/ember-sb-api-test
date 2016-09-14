@@ -8,15 +8,33 @@ export default DS.RESTSerializer.extend({
     //userId isn't as clear or straightforward as "user"
     //So we're going to map the userId to user below
     //Change every key that is "userId" and update it to "user"
-    payload.posts.forEach((post) => {
-      post.user = post.userId;
-      delete post.userId;
-    });
+    //payload.posts.forEach((post) => {
+      //post.user = post.userId;
+      //delete post.userId;
+    //});
+
     //Because we're overriding this method, we want to make sure we don't completely override it
     //return this._super(..arguments);
     //We can't actually use '..arguments' because arguments would be referrencing the original payload
     //ignoring the payload we overrode
     //Hence, in order to make it work, we have to do it the following way:
+    return this._super(store, primaryModelClass, payload, id, requestType);
+  },
+
+  normalizeSingleResponse(store, primaryModelClass, payload, id, requestType) {
+    payload.posts.user = payload.posts.userId;
+    delete payload.posts.userId;
+
+    //Because we want it to keep doing what its doing after we make the above change
+    return this._super(store, primaryModelClass, payload, id, requestType);
+  },
+
+  normalizeArrayResponse(store, primaryModelClass, payload, id, requestType) {
+    payload.posts.forEach((post) => {
+      post.user = post.userId;
+      delete post.userId;
+    });
+
     return this._super(store, primaryModelClass, payload, id, requestType);
   }
 });
